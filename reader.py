@@ -67,3 +67,4 @@ finally:
     with open('ignore_list.txt', 'w') as f:
         for item in contactsToIgnore:
             f.write("%s\n" % item)
+                
