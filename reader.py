@@ -1,11 +1,18 @@
-import email, poplib
+import email, poplib, getpass
+import re
 from email.header import decode_header
 from email import parser
 
+
+poplib._MAXLINE=20480
+emailWebsite = input("Enter your email website: ")
+username = input("Enter your username: ")
+password = getpass.getpass("Enter password: ")
+
 try:
-    pop_conn = poplib.POP3_SSL('link to email e.g. "https://mail.google.com"')
-    pop_conn.user('username')
-    pop_conn.pass_('password')
+    pop_conn = poplib.POP3_SSL(emailWebsite)
+    pop_conn.user(username)
+    pop_conn.pass_(password)
 except poplib.error_proto:
     print("Failed to connect to email")
     pop_conn.quit()
@@ -33,21 +40,27 @@ try:
         raw_email  = b"\n".join(pop_conn.retr(i)[1])
         parsed_email = email.message_from_bytes(raw_email)
         
-        #print(parsed_email['From'])
+        # print(parsed_email['From'])
         
-        if parsed_email['From'] not in contactsToIgnore and parsed_email['From'] not in contactsToRemove:
+        fromEmail = re.search(r'<.*>', parsed_email['From'])
+        if(fromEmail != None):
+            fromEmail = fromEmail.group(0)
+        else:
+            fromEmail = parsed_email['From']
+
+        if fromEmail not in contactsToIgnore and fromEmail not in contactsToRemove:
             print(parsed_email['From'])
             print(parsed_email['Subject'])
             userInput = str(input("I - add to ignore list\nR - add to remove list\nD - delete this email\nAnything else - do nothing\n-> "))
             if userInput.lower() == "i":
-                contactsToIgnore.append(parsed_email['From'])
+                contactsToIgnore.append(fromEmail)
             elif userInput.lower() == "r":
-                contactsToRemove.append(parsed_email['From'])
+                contactsToRemove.append(fromEmail)
             elif userInput.lower() == "d":
                 pop_conn.dele(i)
                 deleted += 1
 
-        if parsed_email['From'] in contactsToRemove:
+        if fromEmail in contactsToRemove:
             pop_conn.dele(i)
             deleted += 1
         
@@ -67,4 +80,3 @@ finally:
     with open('ignore_list.txt', 'w') as f:
         for item in contactsToIgnore:
             f.write("%s\n" % item)
-                
