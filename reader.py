@@ -14,8 +14,9 @@ try:
     pop_conn = poplib.POP3_SSL(emailWebsite)
     pop_conn.user(username)
     pop_conn.pass_(password)
-except poplib.error_proto:
+except poplib.error_proto as detail:
     print("Failed to connect to email")
+    print("ERROR: ", detail)
     loggedIn = False
     pop_conn.quit()
 
