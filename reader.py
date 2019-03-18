@@ -1,7 +1,29 @@
 import email, poplib, getpass
 import re
+from time import sleep
 from email.header import decode_header
 from email import parser
+
+# Text progress bar from https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
+    # Print New Line on Complete
+    if iteration == total: 
+        print()
 
 
 poplib._MAXLINE=20480
@@ -36,17 +58,18 @@ if loggedIn:
 
     numMessages = len(pop_conn.list()[1])
     print("You have {} messages".format(numMessages))
+    printProgressBar(0, numMessages, prefix = 'Progress:', suffix = 'Message: 0', length = 50)
 
     try:
         for i in range(numMessages, 1, -1):
             userInput = ""
-            
+           
             raw_email  = b"\n".join(pop_conn.retr(i)[1])
             parsed_email = email.message_from_bytes(raw_email)
             
             # print(parsed_email['From'])
             
-            fromEmail = re.search(r'<.*>', parsed_email['From'])
+            fromEmail = re.search(r'<.*>', str(parsed_email['From']))
             if(fromEmail != None):
                 fromEmail = fromEmail.group(0)
             else:
@@ -68,8 +91,10 @@ if loggedIn:
                 pop_conn.dele(i)
                 deleted += 1
             
-            if i % 500 == 0:
-                print("Currently on message %d" % i)
+            printProgressBar(numMessages - i, numMessages, prefix = 'Progress:', suffix = 'Message: ' + str(numMessages - i), length = 50)
+
+            # if i % 500 == 0:
+            #     print("Currently on message %d" % i)
             
             #if userInput.lower() == "stop":
             #    break
