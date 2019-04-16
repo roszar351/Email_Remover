@@ -76,6 +76,7 @@ if loggedIn:
                 fromEmail = parsed_email['From']
 
             if fromEmail not in contactsToIgnore and fromEmail not in contactsToRemove:
+                print()
                 print(parsed_email['From'])
                 print(parsed_email['Subject'])
                 userInput = str(input("I - add to ignore list\nR - add to remove list\nD - delete this email\nAnything else - do nothing\n-> "))
