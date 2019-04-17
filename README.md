@@ -4,5 +4,8 @@ Connects to provided email service with the given username and password then goe
 ## 2-step authentication problem
 If your email is protected by a 2-step authentication, you might not be able to log in or be required to set up a special password that lets you log in e.g. gmail(https://support.google.com/accounts/answer/185833)
 
+## GUI
+There is a GUI version which is a bit of a mess, but does work :)
+
 ## Bugs
 - ~~Progress bar glitches into a displayed email~~
